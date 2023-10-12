@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" module for implementation of Amenity class
+""" a module for implementation of Amenity class
 """
 
 from models.base_model import BaseModel
@@ -7,5 +7,7 @@ from models.base_model import BaseModel
 
 class Amenity(BaseModel):
     """ class Amenity that defines the amenities. """
-
-    name = ""
+    def __init__(self, *args, **kwargs):
+        """Initialize User object."""
+        super().__init__(*args, **kwargs)
+        name = ""

@@ -1,13 +1,17 @@
 #!/usr/bin/python3
-""" module for implementation of Review class.
+""" a module for implementation of Review class.
 """
 
 from models.base_model import BaseModel
 
 
 class Review(BaseModel):
-    """ class Review that defines a review. """
+    """ class Review that defines a review instance. """
 
-    place_id: str = ""
-    user_id: str = ""
-    text: str = ""
+    def __init__(self, *args, **kwargs):
+        """Initialize Review object."""
+        super().__init__(*args, **kwargs)
+
+        place_id: str = ""
+        user_id: str = ""
+        text: str = ""
