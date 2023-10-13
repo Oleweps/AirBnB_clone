@@ -15,32 +15,32 @@ from models.place import Place
 from models.review import Review
 
 """ A list of all classes """
-CLASSES = ["BaseModel", "User", "State", "City", "Amenity", "Place", "Review"]
-
+CLASS_LIST = ["BaseModel", "User", "State", "City", "Amenity", "Place", "Review"]
+FUNCTIONS = ["all", "count", "show", "destroy", "update"]
 
 class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
 
-    def do_quit(self, line) -> bool:
+    def do_quit(self, line):
         """ quit command to exit the program
             Args:
                 line: a string containig command arguments.
         """
-        return True
+        return (True)
 
-    def do_EOF(self, line) -> bool:
+    def do_EOF(self, line):
         """EOF command to exit the program
            Args:
                line: a string containig command arguments.
         """
         print()
-        return True
+        return (True)
 
-    def emptyline(self) -> None:
+    def emptyline(self):
         """overwrite the emptyline not to execute anything"""
         pass
 
-    def do_create(self, arg) -> None:
+    def do_create(self, arg):
         """Creates a new instance of BaseModel, saves it to the JSON file,
            and prints the id.
            Args:
@@ -202,35 +202,28 @@ class HBNBCommand(cmd.Cmd):
 
         print(count)
 
-    def default(self, line) -> None:
+    def _default_process(self, line):
         """ called on an input line when,
             the command prefix is not recognized
             Args:
                 line: a string containing commandline arguments
         """
-        args = line.split(".", 1)
-
+        arguments = line.split(".", 1)
         if len(args) != 2:
-            return cmd.Cmd.default(self, line)
-
-        # Validate that the class in in our classes list
-        if args[0] not in CLASSES:
-            return cmd.Cmd.default(self, line)
-
-        # Check that we have brackets
+            return (cmd.Cmd.default(self, line))
+        if args[0] not in CLASS_LIST:
+            return (cmd.Cmd.default(self, line))
         if "(" not in args[1] or ")" not in args[1]:
-            return cmd.Cmd.default(self, line)
-
-        # Remove  all unwanted characters
+            return (cmd.Cmd.default(self, line))
         args = line.replace("(", " ").replace(")", " ")
         args = args.replace('"', '').replace("'", " ").replace(",", "")
-        # Remove whitespaces
         args = args.strip()
-
         if not self.__run_functions(line, args):
-            return cmd.Cmd.default(self, line)
+            cmd.Cmd.default(self, line)
 
-    def __run_functions(self, line, args) -> bool:
+    def default(self, line):
+        return self._default_process(line)
+    def __run_functions(self, line, args):
         """ method to to invoke all the functions
             Args:
                 line: string of arguments
@@ -238,31 +231,29 @@ class HBNBCommand(cmd.Cmd):
             Return:
                   True if function is run else False
         """
-        functions = ["all", "count", "show", "destroy", "update"]
-
         args_list = args.split(" ")  # get list of arguments
         class_name = args_list[0].split(".")[0]  # Class name
-        func_name = args_list[0].split(".")[1]  # The function name
+        function_name = args_list[0].split(".")[1]  # The function name
         length = len(args_list)  # length of argument list
 
         # Check if function is in our list of functions
-        if func_name not in functions:
+        if function_name not in FUNCTIONS:
             return False
 
         del args_list[0]
         # add only the class name instead of <class>.
         args_list.insert(0, class_name)
 
-        if func_name == "all":
+        if function_name == "all":
             self.do_all(class_name)
             return True
-        if func_name == "count":
+        if function_name == "count":
             self.__do_count(class_name)
             return True
-        if func_name == "show":
+        if function_name == "show":
             self.do_show(" ".join([args_list[x] for x in range(length)]))
             return True
-        if func_name == "destroy":
+        if function_name == "destroy":
             self.do_destroy(" ".join([args_list[x] for x in range(length)]))
             return True
 
@@ -274,11 +265,11 @@ class HBNBCommand(cmd.Cmd):
             try:
                 new_args[1] = new_args[1].replace("'", '"')
                 to_data = json.loads(new_args[1].strip(")"))
-            except Exception as e:
+            except Exception as ie:
                 to_data = ""
 
         # Update for if a dictionary is provided in arguments
-        if func_name == "update" and isinstance(to_data, dict):
+        if function_name == "update" and isinstance(to_data, dict):
             arr = [class_name, args_list[1], json.dumps(to_data)]
             arr.append("from_func")
             self.do_update(arr)
