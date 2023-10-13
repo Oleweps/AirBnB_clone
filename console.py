@@ -101,73 +101,62 @@ class HBNBCommand(cmd.Cmd):
             return
         else:
             object_list = [
-                    i for i in object_dict.values(
-                        ) if i.__class__.__name__ == arg_list[0]]
+                    i for i in object_dict.values()
+                    if i.__class__.__name__ == arg_list[0]
+                    ]
 
             print([str(i) for i in object_list])                                    
 
-    def do_show(self, arg):
+    def do_show(self, args):
         """Prints the string representation of an instance
            based on the class name and id.
            Args:
                arg: a string containig command arguments.
         """
-        args = arg.split()
-        if not args:
+        args_list = args.split()
+        if len(args_list) < 1:
             print("** class name missing **")
-        elif args[0] not in CLASSES:
+            return (False)
+        elif args_list[0] not in CLASS_LIST:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+            return (False)
+        elif len(args_list) < 2:
             print("** instance id missing **")
+            return (False)
         else:
-            key = "{}.{}".format(args[0], args[1])
-            obj_dict = storage.all()
-            if key in obj_dict:
-                print(obj_dict[key])
+            i = args_list[1]
+            key = "{}.{}".format(args_list[0], i)
+            object_dict = storage.all()
+            if key in object_dict:
+                print(object_dict[key])
             else:
                 print("** no instance found **")
 
-    def do_destroy(self, arg) -> None:
+    def do_destroy(self, args):
         """Deletes an instance based on the class name and id
            (save the change into the JSON file).
            Args:
                arg: a string containig command arguments
         """
-        args = arg.split()
-        if not args:
+        args_list = args.split()
+        if len(args_list) < 1:
             print("** class name missing **")
-        elif args[0] not in CLASSES:
+            return (False)
+        elif args_list[0] not in CLASS_LIST:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+            return (False)
+        elif len(args_list) < 2:
             print("** instance id missing **")
+            return (False)
         else:
-            key = "{}.{}".format(args[0], args[1])
-            obj_dict = storage.all()
-            if key in obj_dict:
-                del obj_dict[key]
+            i = args_list[1]
+            key = "{}.{}".format(args_list[0], i)
+            object_dict = storage.all()
+            if key in object_dict:
+                del object_dict[key]
             else:
                 print("** no instance found **")
             storage.save()
-
-    def do_all(self, arg) -> None:
-        """Prints all string representations of all instances based
-           or not on the class name.
-           Args:
-               arg: a string containig command arguments.
-        """
-        args = arg.split()
-        obj_dict = storage.all()
-        if not args:
-            obj_list = list(obj_dict.values())
-        elif args[0] not in CLASSES:
-            print("** class doesn't exist **")
-            return
-        else:
-            obj_list = [
-                obj for obj in obj_dict.values()
-                if obj.__class__.__name__ == args[0]
-            ]
-        print([str(obj) for obj in obj_list])
 
     def do_update(self, args):
         """Updates an instance based on the class name and id by
