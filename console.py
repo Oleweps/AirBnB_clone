@@ -1,10 +1,13 @@
 #!/usr/bin/python3
-""" Command Line Interpreter using cmd Module """
+""" Method Command Interpreter Command Line Interpreter using cmd Module """
 
 import cmd
 import json
 import os
+import models
+import models
 
+from datetime import datetime
 from models import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -41,8 +44,9 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, arg) -> None:
-        """Creates a new instance of BaseModel, saves it to the JSON file,
+        """Creates a new instance of BaseModel, saves it
            and prints the id.
+           Usage: create <class name>
            Args:
                arg: a string containig command arguments
         """
@@ -51,77 +55,49 @@ class HBNBCommand(cmd.Cmd):
         elif arg not in CLASSES:
             print("** class doesn't exist **")
         else:
-            obj_id = None
-            if arg == "BaseModel":
-                base_model = BaseModel()
-                base_model.save()
-                obj_id = base_model.id
-            if arg == "User":
-                user = User()
-                user.save()
-                obj_id = user.id
-            if arg == "State":
-                state = State()
-                state.save()
-                obj_id = state.id
-            if arg == "City":
-                city = City()
-                city.save()
-                obj_id = city.id
-            if arg == "Amenity":
-                amenity = Amenity()
-                amenity.save()
-                obj_id = amenity.id
-            if arg == "Place":
-                place = Place()
-                place.save()
-                obj_id = place.id
-            if arg == "Review":
-                review = Review()
-                review.save()
-                obj_id = review.id
-
-            print(obj_id)
+            new_creation = eval(args[0] + '()')
+            models.storage.save()
+            print(new_creation.id)
 
     def do_show(self, arg) -> None:
-        """Prints the string representation of an instance
+        """Prints the string representation of a specific instance
            based on the class name and id.
+           Usage: show <class name> <id>
            Args:
                arg: a string containig command arguments.
         """
         args = arg.split()
-        if not args:
+        if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+        elif len(args) == 1:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
+            key_value = "{}.{}".format(args[0], args[1])
             obj_dict = storage.all()
-            if key in obj_dict:
-                print(obj_dict[key])
+            if key_value in obj_dict:
+                print(obj_dict[key_value])
             else:
                 print("** no instance found **")
 
     def do_destroy(self, arg) -> None:
         """Deletes an instance based on the class name and id
            (save the change into the JSON file).
-           Args:
-               arg: a string containig command arguments
+           Usage: destroy <class name> <id>
         """
         args = arg.split()
-        if not args:
+        if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+        elif len(args) == 1:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
+            key_value = "{}.{}".format(args[0], args[1])
             obj_dict = storage.all()
-            if key in obj_dict:
-                del obj_dict[key]
+            if key_value in obj_dict:
+                del obj_dict[key_value]
             else:
                 print("** no instance found **")
             storage.save()
@@ -129,13 +105,14 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, arg) -> None:
         """Prints all string representations of all instances based
            or not on the class name.
+           Usage: all <class name>
            Args:
                arg: a string containig command arguments.
         """
         args = arg.split()
         obj_dict = storage.all()
-        if not args:
-            obj_list = list(obj_dict.values())
+        if len(args) == 0:
+            obj_list = li st(obj_dict.values())
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
             return
@@ -149,6 +126,7 @@ class HBNBCommand(cmd.Cmd):
     def do_update(self, arg) -> None:
         """Updates an instance based on the class name and id by
            adding or updating attribute.
+           Usage update <class name> <id> <attribute name> "<attribute value>"
            Args:
                arg: a string containig command arguments.
         """
@@ -160,11 +138,11 @@ class HBNBCommand(cmd.Cmd):
         else:
             args = arg.split()
 
-        if not args:
+        if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+        elif len(args) == 1:
             print("** instance id missing **")
         else:
             key = "{}.{}".format(args[0], args[1])
@@ -201,6 +179,20 @@ class HBNBCommand(cmd.Cmd):
                 count += 1
 
         print(count)
+    def check_class_name(self, name=""):
+        """Check if stdin user typed class name and id."""
+        if len(name) == 0:
+            print("** class name missing **")
+            return False
+        else:
+            return True
+    def check_class_id(self, name=""):
+        """Check class id"""
+        if len(name.split(' ')) == 1:
+            print("** instance id missing **")
+            return False
+        else:
+            return True
 
     def default(self, line) -> None:
         """ called on an input line when,
