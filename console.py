@@ -40,50 +40,73 @@ class HBNBCommand(cmd.Cmd):
         """overwrite the emptyline not to execute anything"""
         pass
 
-    def do_create(self, arg):
-        """Creates a new instance of BaseModel, saves it to the JSON file,
-           and prints the id.
-           Args:
-               arg: a string containig command arguments
-        """
-        if not arg:
+    def do_create(self, args):
+        arg_list1 = args.split()
+        if len(arg_list1) < 1:
             print("** class name missing **")
-        elif arg not in CLASSES:
+            return (False)
+
+        arg = arg_list1[0]
+
+        if arg not in CLASS_LIST:
             print("** class doesn't exist **")
+            return (False)
+        obj = self.create_obj(arg)
+        if obj:
+            print(obj)
+
+    def create_obj(self, class_name):
+        if class_name == "BaseModel":
+            base_model = BaseModel()
+            base_model.save()
+            return (base_model.id)
+        if class_name  == "User":
+            user = User()
+            user.save()
+            return (user.id)
+        if class_name == "State":
+            state = State()
+            state.save()
+            return (state.id)
+        if class_name == "City":
+            city = City()
+            city.save()
+            return (city.id)
+        if class_name == "Amenity":
+            amenity = Amenity()
+            amenity.save()
+            return (amenity.id)
+        if class_name  == "Place":
+            place = Place()
+            place.save()
+            return (place.id)
+        if class_name == "Review":
+            review = Review()
+            review.save()
+            return (review.id)
+        return (None)
+
+    def do_all(self, arg):
+        """Prints all string representations of all instances based
+        or not on the class name.
+        Args:
+            arg: a string containig command arguments.
+        """
+        arg_list = arg.split()
+        object_dict = storage.all()
+        if not arg_list:
+            object_list = list(object_dict.values())
+        elif arg_list[0] not in CLASS_LIST:
+            print("** class doesn't exist **")
+            return
         else:
-            obj_id = None
-            if arg == "BaseModel":
-                base_model = BaseModel()
-                base_model.save()
-                obj_id = base_model.id
-            if arg == "User":
-                user = User()
-                user.save()
-                obj_id = user.id
-            if arg == "State":
-                state = State()
-                state.save()
-                obj_id = state.id
-            if arg == "City":
-                city = City()
-                city.save()
-                obj_id = city.id
-            if arg == "Amenity":
-                amenity = Amenity()
-                amenity.save()
-                obj_id = amenity.id
-            if arg == "Place":
-                place = Place()
-                place.save()
-                obj_id = place.id
-            if arg == "Review":
-                review = Review()
-                review.save()
-                obj_id = review.id
+            object_list = [
+                    i for i in object_dict.values(
+                        ) if i.__class__.__name__ == arg_list[0]]
 
-            print(obj_id)
+            print([str(i) for i in object_list])                                    
 
-    def do_show(self, arg) -> None:
+    def do_show(self, arg):
         """Prints the string representation of an instance
            based on the class name and id.
            Args:
@@ -146,7 +169,7 @@ class HBNBCommand(cmd.Cmd):
             ]
         print([str(obj) for obj in obj_list])
 
-    def do_update(self, arg) -> None:
+    def do_update(self, args):
         """Updates an instance based on the class name and id by
            adding or updating attribute.
            Args:
@@ -154,27 +177,27 @@ class HBNBCommand(cmd.Cmd):
         """
 
         attrs = {}
-        if "from_func" in arg:
-            args = arg
-            attrs = json.loads(args[2])
+        if "from_func" in args:
+            arg = args
+            attrs = json.loads(arg[2])
         else:
-            args = arg.split()
+            arg = args.split()
 
-        if not args:
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in CLASSES:
+        elif arg[0] not in CLASSES:
             print("** class doesn't exist **")
-        elif len(args) < 2:
+        elif len(arg) < 2:
             print("** instance id missing **")
         else:
-            key = "{}.{}".format(args[0], args[1])
+            key = "{}.{}".format(arg[0], arg[1])
             obj_dict = storage.all()
 
             if key not in obj_dict:
                 print("** no instance found **")
-            elif len(args) < 3:
+            elif len(arg) < 3:
                 print("** attribute name missing **")
-            elif len(args) < 4:
+            elif len(arg) < 4:
                 print("** value missing **")
             else:
                 obj = obj_dict[key]
@@ -182,12 +205,12 @@ class HBNBCommand(cmd.Cmd):
                     for key, val in attrs.items():
                         setattr(obj, key, val)
                 else:
-                    attribute_name = args[2]
-                    attribute_value = args[3].strip("\"")
+                    attribute_name = arg[2]
+                    attribute_value = arg[3].strip("\"")
                     setattr(obj, attribute_name, attribute_value)
                 obj.save()
 
-    def __do_count(self, obj) -> int:
+    def __do_count(self, obj):
         """ count the number of objects in storage
             Return:
                   number of objects in storage
@@ -223,7 +246,7 @@ class HBNBCommand(cmd.Cmd):
 
     def default(self, line):
         return self._default_process(line)
-    def __run_functions(self, line, args):
+    def execute_command(self, line, args):
         """ method to to invoke all the functions
             Args:
                 line: string of arguments
@@ -231,17 +254,13 @@ class HBNBCommand(cmd.Cmd):
             Return:
                   True if function is run else False
         """
-        args_list = args.split(" ")  # get list of arguments
-        class_name = args_list[0].split(".")[0]  # Class name
-        function_name = args_list[0].split(".")[1]  # The function name
-        length = len(args_list)  # length of argument list
-
-        # Check if function is in our list of functions
+        args_list = args.split(" ")
+        class_name = args_list[0].split(".")[0]
+        function_name = args_list[0].split(".")[1]
+        length = len(args_list)
         if function_name not in FUNCTIONS:
             return False
-
         del args_list[0]
-        # add only the class name instead of <class>.
         args_list.insert(0, class_name)
 
         if function_name == "all":
@@ -257,25 +276,23 @@ class HBNBCommand(cmd.Cmd):
             self.do_destroy(" ".join([args_list[x] for x in range(length)]))
             return True
 
-        # For functions with more than one argument
-        new_args = line.split(" ", 1)
+        new_args_list = line.split(" ", 1)
         to_data = ""
 
-        if len(new_args) > 1:
+        if len(new_args_list) > 1:
             try:
-                new_args[1] = new_args[1].replace("'", '"')
-                to_data = json.loads(new_args[1].strip(")"))
+                new_args_list[1] = new_args_list[1].replace("'", '"')
+                to_data = json.loads(new_args_list[1].strip(")"))
             except Exception as ie:
                 to_data = ""
 
-        # Update for if a dictionary is provided in arguments
         if function_name == "update" and isinstance(to_data, dict):
             arr = [class_name, args_list[1], json.dumps(to_data)]
             arr.append("from_func")
             self.do_update(arr)
             return True
         else:
-            if length > 4:  # we want to update only one attribute
+            if length > 4:
                 length = 4
             arr = [args_list[x].strip(")") for x in range(length)]
             self.do_update(" ".join(arr))
