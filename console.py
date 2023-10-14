@@ -1,46 +1,58 @@
 #!/usr/bin/python3
-""" Command Line Interpreter using cmd Module """
+""" A module containing a class entry point fod a Command Line Interpreter """
 
-import cmd
 import json
 import os
-
-from models import storage
+import cmd
 from models.base_model import BaseModel
 from models.user import User
+from models.place import Place
+from models.review import Review
+from models import storage
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
 
-""" A list of all classes """
-CLASS_LIST = ["BaseModel", "User", "State", "City", "Amenity", "Place", "Review"]
+# A list containing all claseess
+CLASS_LIST = [
+        "BaseModel", "User", "State", "City", "Amenity", "Place", "Review"
+        ]
+
+# All functions list
 FUNCTIONS = ["all", "count", "show", "destroy", "update"]
 
+
 class HBNBCommand(cmd.Cmd):
+    """ Serves as the console's entry point """
     prompt = "(hbnb) "
 
     def do_quit(self, line):
-        """ quit command to exit the program
-            Args:
-                line: a string containig command arguments.
+        """
+        Used to exit the program
+        Args:
+            line: holds the command line argumentss.
         """
         return (True)
 
     def do_EOF(self, line):
-        """EOF command to exit the program
+        """
+        Used to Exit the program
            Args:
-               line: a string containig command arguments.
+               line: holds command line arguments.
         """
         print()
         return (True)
 
     def emptyline(self):
-        """overwrite the emptyline not to execute anything"""
+        """
+        Handles no command given
+        """
         pass
 
     def do_create(self, args):
+        """
+        Creates Instances of BsseModel
+        """
         arg_list1 = args.split()
         if len(arg_list1) < 1:
             print("** class name missing **")
@@ -56,11 +68,12 @@ class HBNBCommand(cmd.Cmd):
             print(obj)
 
     def create_obj(self, class_name):
+        """ Creates object """
         if class_name == "BaseModel":
             base_model = BaseModel()
             base_model.save()
             return (base_model.id)
-        if class_name  == "User":
+        if class_name == "User":
             user = User()
             user.save()
             return (user.id)
@@ -76,7 +89,7 @@ class HBNBCommand(cmd.Cmd):
             amenity = Amenity()
             amenity.save()
             return (amenity.id)
-        if class_name  == "Place":
+        if class_name == "Place":
             place = Place()
             place.save()
             return (place.id)
@@ -84,13 +97,14 @@ class HBNBCommand(cmd.Cmd):
             review = Review()
             review.save()
             return (review.id)
-        return (None)
+        return (False)
 
     def do_all(self, arg):
-        """Prints all string representations of all instances based
-        or not on the class name.
+        """
+        Used to print tring representations of all instances whether based
+        or the classor not.
         Args:
-            arg: a string containig command arguments.
+            arg: Holds command line arguments.
         """
         arg_list = arg.split()
         object_dict = storage.all()
@@ -104,14 +118,14 @@ class HBNBCommand(cmd.Cmd):
                     i for i in object_dict.values()
                     if i.__class__.__name__ == arg_list[0]
                     ]
-
-            print([str(i) for i in object_list])                                    
+            print([str(i) for i in object_list])
 
     def do_show(self, args):
-        """Prints the string representation of an instance
-           based on the class name and id.
+        """
+        Used to print the string representation of an instance based on class
+        name.
            Args:
-               arg: a string containig command arguments.
+               args: Holds  command line arguments.
         """
         args_list = args.split()
         if len(args_list) < 1:
@@ -133,10 +147,10 @@ class HBNBCommand(cmd.Cmd):
                 print("** no instance found **")
 
     def do_destroy(self, args):
-        """Deletes an instance based on the class name and id
-           (save the change into the JSON file).
+        """
+        Used to delete an instance based on class name & id
            Args:
-               arg: a string containig command arguments
+               args: Holds command line arguments
         """
         args_list = args.split()
         if len(args_list) < 1:
@@ -159,68 +173,76 @@ class HBNBCommand(cmd.Cmd):
             storage.save()
 
     def do_update(self, args):
-        """Updates an instance based on the class name and id by
-           adding or updating attribute.
-           Args:
-               arg: a string containig command arguments.
         """
-
+        Used to update instance through adding/ updating attributey
+           Args:
+               args: Holds command line arguments.
+        """
         attrs = {}
         if "from_func" in args:
-            arg = args
-            attrs = json.loads(arg[2])
+            try:
+                arg = args.split()
+                attrs = json.loads(arg[2])
+            except json.JSONDecodeError as e:
+                print(f"JSON decoding error: {e}")
+                return (False)
         else:
             arg = args.split()
 
-        if not arg:
+        if len(arg) < 1:
             print("** class name missing **")
-        elif arg[0] not in CLASSES:
+            return (False)
+        if arg[0] not in CLASS_LIST:
             print("** class doesn't exist **")
-        elif len(arg) < 2:
+            return (False)
+        if len(arg) < 2:
             print("** instance id missing **")
-        else:
-            key = "{}.{}".format(arg[0], arg[1])
-            obj_dict = storage.all()
+            return (False)
+        i = arg[1]
+        key = "{}.{}".format(arg[0], i)
+        object_dict = storage.all()
 
-            if key not in obj_dict:
-                print("** no instance found **")
-            elif len(arg) < 3:
-                print("** attribute name missing **")
-            elif len(arg) < 4:
-                print("** value missing **")
+        if key not in object_dict:
+            print("** no instance found **")
+            return (False)
+        elif len(arg) < 3:
+            print("** attribute name missing **")
+            return (False)
+        elif len(arg) < 4:
+            print("** value missing **")
+            return (False)
+        else:
+            j = object_dict[key]
+            if len(attrs) > 0:
+                for key, val in attrs.items():
+                    setattr(j, key, val)
             else:
-                obj = obj_dict[key]
-                if len(attrs) > 0:
-                    for key, val in attrs.items():
-                        setattr(obj, key, val)
-                else:
-                    attribute_name = arg[2]
-                    attribute_value = arg[3].strip("\"")
-                    setattr(obj, attribute_name, attribute_value)
-                obj.save()
+                attribute_name = arg[2]
+                attribute_value = arg[3].strip("\"")
+                setattr(j, attribute_name, attribute_value)
+                j.save()
 
     def __do_count(self, obj):
-        """ count the number of objects in storage
-            Return:
-                  number of objects in storage
         """
-        obj_dict = storage.all()
-        count = 0
+        Used to count number of objects in the storage system
+        """
+        cnt = 0  # Initialize count
+        object_dict = storage.all()
 
-        for key, value in obj_dict.items():
-            to_dict = value.to_dict()
-            if to_dict["__class__"] == obj:
-                count += 1
+        for key, value in object_dict.items():
+            dictionary2 = value.to_dict()
+            if dictionary2["__class__"] == obj:
+                cnt += 1  # Increment
 
-        print(count)
+        return (cnt)  # return count
 
     def _default_process(self, line):
-        """ called on an input line when,
-            the command prefix is not recognized
-            Args:
-                line: a string containing commandline arguments
         """
-        arguments = line.split(".", 1)
+        Used to handle the execution of default method
+            Args:
+                line: Holds commandline arguments
+        """
+        args = line.split(".", 1)
         if len(args) != 2:
             return (cmd.Cmd.default(self, line))
         if args[0] not in CLASS_LIST:
@@ -230,40 +252,43 @@ class HBNBCommand(cmd.Cmd):
         args = line.replace("(", " ").replace(")", " ")
         args = args.replace('"', '').replace("'", " ").replace(",", "")
         args = args.strip()
-        if not self.__run_functions(line, args):
+        if not self.execute_command(line, args):
             cmd.Cmd.default(self, line)
 
     def default(self, line):
+        """ Handles where no commands matches ones on the list """
         return self._default_process(line)
+
     def execute_command(self, line, args):
-        """ method to to invoke all the functions
+        """
+        This calls all methods to execute
             Args:
-                line: string of arguments
-                args: an array of arguments
+                line: Holds command line arguments
+                args: an array that contains arguments
             Return:
-                  True if function is run else False
+                  True when successfully run and False when a function failse
         """
         args_list = args.split(" ")
         class_name = args_list[0].split(".")[0]
         function_name = args_list[0].split(".")[1]
         length = len(args_list)
         if function_name not in FUNCTIONS:
-            return False
+            return (False)
         del args_list[0]
         args_list.insert(0, class_name)
 
         if function_name == "all":
             self.do_all(class_name)
-            return True
+            return (True)
         if function_name == "count":
             self.__do_count(class_name)
-            return True
+            return (True)
         if function_name == "show":
             self.do_show(" ".join([args_list[x] for x in range(length)]))
-            return True
+            return (True)
         if function_name == "destroy":
             self.do_destroy(" ".join([args_list[x] for x in range(length)]))
-            return True
+            return (True)
 
         new_args_list = line.split(" ", 1)
         to_data = ""
@@ -279,14 +304,14 @@ class HBNBCommand(cmd.Cmd):
             arr = [class_name, args_list[1], json.dumps(to_data)]
             arr.append("from_func")
             self.do_update(arr)
-            return True
+            return (True)
         else:
             if length > 4:
                 length = 4
-            arr = [args_list[x].strip(")") for x in range(length)]
-            self.do_update(" ".join(arr))
-            return True
-        return False
+                arr = [args_list[x].strip(")") for x in range(length)]
+                self.do_update(" ".join(arr))
+                return (True)
+            return (False)
 
 
 if __name__ == '__main__':
