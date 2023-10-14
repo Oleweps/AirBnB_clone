@@ -4,8 +4,6 @@
 import cmd
 import json
 import os
-import models
-import models
 
 from datetime import datetime
 from models import storage
@@ -112,7 +110,7 @@ class HBNBCommand(cmd.Cmd):
         args = arg.split()
         obj_dict = storage.all()
         if len(args) == 0:
-            obj_list = li st(obj_dict.values())
+            obj_list = list(obj_dict.values())
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
             return
@@ -179,6 +177,7 @@ class HBNBCommand(cmd.Cmd):
                 count += 1
 
         print(count)
+
     def check_class_name(self, name=""):
         """Check if stdin user typed class name and id."""
         if len(name) == 0:
@@ -186,6 +185,7 @@ class HBNBCommand(cmd.Cmd):
             return False
         else:
             return True
+
     def check_class_id(self, name=""):
         """Check class id"""
         if len(name.split(' ')) == 1:
