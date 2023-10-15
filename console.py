@@ -66,11 +66,11 @@ class HBNBCommand(cmd.Cmd):
                arg: a string containig command arguments.
         """
         args = arg.split()
-        if len(args) == 0:
+        if len(args) < 1:
             print("** class name missing **")
         elif args[0] not in CLASSES:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             key_value = "{}.{}".format(args[0], args[1])
@@ -132,27 +132,31 @@ class HBNBCommand(cmd.Cmd):
 
         attrs = {}
         if "from_func" in arg:
-            args = arg
-            attrs = json.loads(args[2])
+            attrs = json.loads(arg[2])
         else:
-            args = arg.split()
-
-        if len(args) == 0:
+            args = re.findall(r'"[^"]*"|\S+', arg)
+        if len(args) < 1:
             print("** class name missing **")
-        elif args[0] not in CLASSES:
+            return False
+        elif args[0] not in type(self).CLASSES:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+            return False
+        elif len(args) < 2:
             print("** instance id missing **")
+            return False
         else:
             key = "{}.{}".format(args[0], args[1])
             obj_dict = storage.all()
 
             if key not in obj_dict:
                 print("** no instance found **")
+                return False
             elif len(args) < 3:
                 print("** attribute name missing **")
+                return False
             elif len(args) < 4:
                 print("** value missing **")
+                return False
             else:
                 obj = obj_dict[key]
                 if len(attrs) > 0:

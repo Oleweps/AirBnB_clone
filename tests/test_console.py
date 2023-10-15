@@ -227,7 +227,7 @@ class TestHBNBCommand_show(unittest.TestCase):
             self.assertFalse(HBNBCommand().onecmd("show"))
             self.assertEqual(correct, output.getvalue().strip())
         with patch("sys.stdout", new=StringIO()) as output:
-            self.assertFalse(HBNBCommand().onecmd(".show()"))
+            self.assertFalse(HBNBCommand().onecmd("show()"))
             self.assertEqual(correct, output.getvalue().strip())
 
     def test_show_invalid_class(self):
@@ -773,8 +773,7 @@ class TestHBNBCommand_all(unittest.TestCase):
             self.assertIn("Place", output.getvalue().strip())
             self.assertIn("City", output.getvalue().strip())
             self.assertIn("Amenity", output.getvalue().strip())
-            self.assertIn("Review", output.getvalue().strip())
-
+            self.assertIn("Review", output.getvalue().strip())                                                                                  
     def test_all_single_object_space_notation(self):
         with patch("sys.stdout", new=StringIO()) as output:
             self.assertFalse(HBNBCommand().onecmd("create BaseModel"))
