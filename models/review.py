@@ -12,6 +12,6 @@ class Review(BaseModel):
         """Initialize Review object."""
         super().__init__(*args, **kwargs)
 
-        place_id: str = ""
-        user_id: str = ""
-        text: str = ""
+        self.place_id: str = ""
+        self.user_id: str = ""
+        self.text: str = ""

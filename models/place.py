@@ -12,14 +12,14 @@ class Place(BaseModel):
         """Initialize Place object."""
         super().__init__(*args, **kwargs)
 
-        city_id: str = ""
-        user_id: str = ""
-        name: str = ""
-        description: str = ""
-        number_rooms: int = 0
-        number_bathrooms: int = 0
-        max_guest: int = 0
-        price_by_night: int = 0
-        latitude: float = 0.0
-        longitude: float = 0.0
-        amenity_ids: list = []
+        self.city_id: str = ""
+        self.user_id: str = ""
+        self.name: str = ""
+        self.description: str = ""
+        self.number_rooms: int = 0
+        self.number_bathrooms: int = 0
+        self.max_guest: int = 0
+        self.price_by_night: int = 0
+        self.latitude: float = 0.0
+        self.longitude: float = 0.0
+        self.amenity_ids: list = []

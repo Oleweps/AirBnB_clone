@@ -10,4 +10,4 @@ class Amenity(BaseModel):
     def __init__(self, *args, **kwargs):
         """Initialize User object."""
         super().__init__(*args, **kwargs)
-        name = ""
+        self.name = ""

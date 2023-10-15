@@ -12,5 +12,5 @@ class City(BaseModel):
         """Initialize City object."""
         super().__init__(*args, **kwargs)
 
-        state_id: str = ""
-        name: str = ""
+        self.state_id: str = ""
+        self.name: str = ""
