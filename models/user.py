@@ -11,7 +11,7 @@ class User(BaseModel):
         """Initialize User object."""
         super().__init__(*args, **kwargs)
 
-        email = ""
-        password = ""
-        first_name = ""
-        last_name = ""
+        self.email = ""
+        self.password = ""
+        self.first_name = ""
+        self.last_name = ""

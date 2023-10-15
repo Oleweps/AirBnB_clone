@@ -54,7 +54,7 @@ class HBNBCommand(cmd.Cmd):
         elif arg not in CLASSES:
             print("** class doesn't exist **")
         else:
-            new_creation = eval(args[0] + '()')
+            new_creation = eval(arg[0] + '()')
             models.storage.save()
             print(new_creation.id)
 
