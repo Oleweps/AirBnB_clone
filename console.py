@@ -4,6 +4,7 @@
 import cmd
 import json
 import os
+import models
 
 from datetime import datetime
 from models import storage
