@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+./w3c_validator.py *.html styles/*.css
